@@ -1,0 +1,60 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate -w backend # Prisma types are needed by tsc
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist
+          path: backend/dist
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate -w backend
+      - run: npm run test:coverage --workspaces
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: |
+            backend/coverage
+            frontend/coverage
+
+  # deploy job is added once a hosting service is chosen.
