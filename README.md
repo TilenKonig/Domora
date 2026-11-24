@@ -1,5 +1,22 @@
 # Domora
 
+[![CI/CD](https://github.com/TilenKonig/Domora/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/TilenKonig/Domora/actions/workflows/ci-cd.yml)
+
+**Nameščena aplikacija:** https://domora-orcin.vercel.app/
+
+## CI/CD cevovod
+
+Workflow `.github/workflows/ci-cd.yml` se sproži ob PR v `main` in ob pushu na `main`.
+
+1. **lint**: ESLint (`eslint.config.mjs`) za frontend in backend. Napake ustavijo cevovod.
+2. **build**: `npm ci` (npm cache), `prisma generate`, gradnja frontenda in backenda. `dist/` obeh se shrani kot artefakt.
+3. **test**: vitest (frontend) in `node --test` (backend) s pokritostjo. Poročilo je artefakt `coverage`.
+4. **deploy**: samo ob pushu na `main` in po uspešnih `lint`, `build`, `test`. Okolje `production`. Frontend (artefakt iz `build`) gre na Vercel, backend na Render prek deploy hooka.
+
+Zaščita veje `main` zahteva uspešne `lint`, `build` in `test`.
+
+## O projektu
+
 Domora je spletna aplikacija za oglaševanje nepremičnin in usklajevanje ogledov. Iskalci pregledujejo oglase in zaprosijo za ogled, oglaševalci upravljajo oglase in termine, administrator pa pred objavo preveri oglase.
 
 Implementiran je MVP z uporabniškimi zgodbami **US-01–US-20**.
